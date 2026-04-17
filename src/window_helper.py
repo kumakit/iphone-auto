@@ -7,15 +7,17 @@ def get_iphone_mirroring_window_region():
     """
     script = '''
     tell application "System Events"
-        try
-            set p to first process whose name is "iPhone Mirroring"
-            set win to first window of p
-            set pos to position of win
-            set siz to size of win
-            return (item 1 of pos as string) & "," & (item 2 of pos as string) & "," & (item 1 of siz as string) & "," & (item 2 of siz as string)
-        on error
-            return "not found"
-        end try
+        set procNames to {"iPhone Mirroring", "iPhoneミラーリング"}
+        repeat with procName in procNames
+            try
+                set p to first process whose name is procName
+                set win to first window of p
+                set pos to position of win
+                set siz to size of win
+                return (item 1 of pos as string) & "," & (item 2 of pos as string) & "," & (item 1 of siz as string) & "," & (item 2 of siz as string)
+            end try
+        end repeat
+        return "not found"
     end tell
     '''
     try:
