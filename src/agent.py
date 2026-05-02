@@ -72,36 +72,43 @@ class iPhoneAgent:
         temp_get_list = self.vision.list_templates(prefix="point_get")
         temp_ad_close_list = self.vision.list_templates(prefix="ad_close")
 
-        # 状態判定と実行
-        # 1. ポイント獲得ボタン（リザルト画面、追加獲得など）があるか？
+        # 1. ポイント獲得ボタンのチェック
         res_get = self.vision.find_any_template(img, temp_get_list)
         if res_get:
-            print(f"State: POINT_RESULT - Found button: {res_get['template_name']} (conf: {res_get['confidence']:.2f})")
-            self.vision.save_visual_debug(img, res_get, "click_point_get.png")
+            template_name = res_get['template_name']
+            print(f"\n>>> [HIT] {template_name} (信頼度: {res_get['confidence']:.2f}) -> ポイント獲得ボタンをタップ")
+            # ファイル名に使用できない文字を置換
+            safe_name = template_name.replace(".", "_")
+            self.vision.save_visual_debug(img, res_get, f"match_get_{safe_name}.png")
             x, y = res_get["center"]
             self.control.tap(x, y)
             return
 
-        # 2. ポイントゲット開始ボタン（ホーム画面など）があるか？
+        # 2. ポイントゲット開始ボタンのチェック
         res_ready = self.vision.find_any_template(img, temp_ready_list)
         if res_ready:
-            print(f"State: POINT_READY - Found button: {res_ready['template_name']} (conf: {res_ready['confidence']:.2f})")
-            self.vision.save_visual_debug(img, res_ready, "click_point_ready.png")
+            template_name = res_ready['template_name']
+            print(f"\n>>> [HIT] {template_name} (信頼度: {res_ready['confidence']:.2f}) -> 開始ボタンをタップ")
+            safe_name = template_name.replace(".", "_")
+            self.vision.save_visual_debug(img, res_ready, f"match_ready_{safe_name}.png")
             x, y = res_ready["center"]
             self.control.tap(x, y)
-            print("Ad should start or continue...")
             return
 
-        # 3. 広告の×印があるか？
+        # 3. 広告の×印のチェック
         res_ad = self.vision.find_any_template(img, temp_ad_close_list)
         if res_ad:
-            print(f"State: AD_PLAYING - Found close button: {res_ad['template_name']} (conf: {res_ad['confidence']:.2f})")
-            self.vision.save_visual_debug(img, res_ad, "click_ad_close.png")
+            template_name = res_ad['template_name']
+            print(f"\n>>> [HIT] {template_name} (信頼度: {res_ad['confidence']:.2f}) -> 広告を閉じます")
+            safe_name = template_name.replace(".", "_")
+            self.vision.save_visual_debug(img, res_ad, f"match_ad_close_{safe_name}.png")
             x, y = res_ad["center"]
             self.control.tap(x, y)
             return
 
-        print("State: UNKNOWN or WAITING... (Scanning for buttons)")
+
+        print(".", end="", flush=True)  # スキャン中であることを示すドットを表示
+
 
 if __name__ == "__main__":
     app_name = "pully"
